@@ -1,8 +1,8 @@
 /*
   Object oriented design is commonly used in video games.  For this part of the assignment you will be implementing several constructor functions with their correct inheritance hierarchy.
-
+​
   In this file you will be creating three constructor functions: GameObject, CharacterStats, Humanoid.  
-
+​
   At the bottom of this file are 3 objects that all end up inheriting from Humanoid.  Use the objects at the bottom of the page to test your constructor functions.
   
   Each constructor function has unique properties and methods that are defined in their block comments below:
@@ -16,16 +16,14 @@
   * destroy() // prototype method that returns: `${this.name} was removed from the game.`
 */
 
-class GameObject {
-  constructor(attributes) {
-    this.name = attributes.name;
-    this.createdAt = attributes.createdAt;
-    this.dimensions = attributes.dimensions;
-  }
+function GameObject(attributes) {
+  this.createdAt = attributes.createdAt;
+  this.name = attributes.name;
+  this.dimensions = attributes.dimensions;
+};
 
-  destroy() {
-    return (`${this.name} was removed from the game`);
-  }
+GameObject.prototype.destroy = function () {
+  console.log(`${this.name} was removed from the game.`);
 }
 
 /*
@@ -35,58 +33,25 @@ class GameObject {
   * should inherit destroy() from GameObject's prototype
 */
 
-class CharacterStats extends GameObject {
-  constructor(attributes) {
-    super(attributes);
-    this.healthPoints = attributes.healthPoints;
-  }
-  takeDamage(amount) {
-    if ((this.healthPoints - amount) <= 0) {
-      this.healthPoints = 0;
-      return (`${this.name} has died.`);
-      this.destroy();
-    }
-    else {
-      this.healthPoints -= amount;
-    }
-  }
+function CharacterStats(attributes) {
+  this.healthPoints = attributes.healthPoints;
+  this.currentHealth = this.healthPoints;
+  GameObject.call(this, attributes);
+};
+
+CharacterStats.prototype = Object.create(GameObject.prototype);
+
+CharacterStats.prototype.takeDamage = function () {
+  return `${this.name} took damage.`;
 }
 
-class Humanoid extends CharacterStats {
-  constructor(attributes) {
-    super(attributes);
-    this.team = attributes.team;
-    this.language = attributes.language;
-    this.weapons = attributes.weapons;
+CharacterStats.prototype.reduceHealth = function (damage) {
+  if (damage >= this.currentHealth) {
+    this.destroy();
+  } else {
+    this.currentHealth -= damage;
+    console.log(`${this.name} lost ${damage} health.`);
   }
-
-  greet() {
-    return (`${this.name} offers a greeting in ${this.language}`);
-  }
-}
-
-class Villain extends Humanoid {
-  constructor(attributes) {
-    super(attributes);
-  }
-
-  eyeLaser(target) {
-    target.takeDamage(5);
-    return (`${this.name} shoots eye lasers at ${target.name}.`);
-  }
-
-}
-
-class Hero extends Humanoid {
-  constructor(attributes) {
-    super(attributes);
-  }
-
-  holySlap(target) {
-    target.takeDamage(5);
-    return (`${this.name} slaps ${target.name} with divine fury.`);
-  }
-
 }
 
 /*
@@ -99,11 +64,28 @@ class Hero extends Humanoid {
   * should inherit takeDamage() from CharacterStats
 */
 
+function Humanoid(attributes) {
+  this.team = attributes.team;
+  this.weapons = attributes.weapons;
+  this.language = attributes.language;
+  GameObject.call(this, attributes);
+  CharacterStats.call(this, attributes);
+}
+Humanoid.prototype = Object.create(CharacterStats.prototype);
+
+Humanoid.prototype.greet = function () {
+  return `${this.name} offers a greeting in ${this.language}`;
+}
+
+
+
 /*
   * Inheritance chain: GameObject -> CharacterStats -> Humanoid
   * Instances of Humanoid should have all of the same properties as CharacterStats and GameObject.
   * Instances of CharacterStats should have all of the same properties as GameObject.
 */
+
+
 
 // Test you work by un-commenting these 3 objects and the list of console logs below:
 
@@ -158,40 +140,6 @@ const archer = new Humanoid({
   language: 'Elvish',
 });
 
-const villain = new Villain({
-  createdAt: new Date(),
-  dimensions: {
-    length: 1,
-    width: 2,
-    height: 4,
-  },
-  healthPoints: 10,
-  name: 'Meevil',
-  team: 'Evil People',
-  weapons: [
-    'Bow',
-    'Dagger',
-  ],
-  language: 'Jerk',
-});
-
-const hero = new Hero({
-  createdAt: new Date(),
-  dimensions: {
-    length: 1,
-    width: 2,
-    height: 4,
-  },
-  healthPoints: 10,
-  name: 'Bob',
-  team: 'The Hero League',
-  weapons: [
-    'Bow',
-    'Dagger',
-  ],
-  language: 'Niceguy',
-});
-
 console.log(mage.createdAt); // Today's date
 console.log(archer.dimensions); // { length: 1, width: 2, height: 4 }
 console.log(swordsman.healthPoints); // 15
@@ -200,14 +148,104 @@ console.log(swordsman.team); // The Round Table
 console.log(mage.weapons); // Staff of Shamalama
 console.log(archer.language); // Elvish
 console.log(archer.greet()); // Lilith offers a greeting in Elvish.
-console.log(mage.takeDamage(1)); // Bruce took damage.
+console.log(mage.takeDamage()); // Bruce took damage.
 console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
-console.log(hero.holySlap(villain));
-console.log(villain.eyeLaser(hero));
-console.log(hero.holySlap(villain));
 
 
-  // Stretch task: 
-  // * Create Villain and Hero constructor functions that inherit from the Humanoid constructor function.  
-  // * Give the Hero and Villains different methods that could be used to remove health points from objects which could result in destruction if health gets to 0 or drops below 0;
-  // * Create two new objects, one a villain and one a hero and fight it out with methods!
+
+// Stretch task: 
+// * Create Villain and Hero constructor functions that inherit from the Humanoid constructor function.  
+// * Give the Hero and Villains different methods that could be used to remove health points from objects which could result in destruction if health gets to 0 or drops below 0;
+// * Create two new objects, one a villain and one a hero and fight it out with methods!
+
+
+// VILLAIN CONSTRUCTOR FUNCTION
+function Villain(attributes) {
+  this.strength = attributes.strength;
+  this.weapon = attributes.weapon;
+  Humanoid.call(this, attributes);
+}
+
+// Inheirit all prototype method of Humanoid
+Villain.prototype = Object.create(Humanoid.prototype);
+
+// Attack target and deal damage
+Villain.prototype.attack = function (target) {
+  console.log(`${this.name}  uneffectively slaps ${target.name} with his ${this.weapon}..`);
+  target.reduceHealth(this.strength);
+}
+
+
+
+
+// HERO CONSTRUCTOR FUNCTION
+function Hero(attributes) {
+  this.strength = attributes.strength;
+  this.weapon = attributes.weapon;
+  Humanoid.call(this, attributes);
+}
+// Inheirit all prototype method of Humanoid
+Hero.prototype = Object.create(Humanoid.prototype);
+
+// Attack target and deal damage
+Hero.prototype.attack = function (target) {
+  console.log(`${this.name} uses the power of ${this.weapon} to attack attack attack attack attack attack.. attack..`);
+  target.reduceHealth(this.strength);
+
+}
+
+
+// Create Hero Object
+const superhero = new Hero({
+  createdAt: new Date(),
+  dimensions: {
+    length: 1,
+    width: 2,
+    height: 4,
+  },
+  healthPoints: 500,
+  strength: 20,
+  name: 'Recursion Man',
+  team: 'Loopers',
+  weapon: 'recursion',
+  language: 'Heronese',
+});
+
+// Create Villain Object
+const supervillain = new Villain({
+  createdAt: new Date(),
+  dimensions: {
+    length: 1,
+    width: 2,
+    height: 4,
+  },
+  healthPoints: 100,
+  strength: 20,
+  name: 'Prototypal Man',
+  team: 'Functions',
+  weapon: 'Sloppy Class Syntax',
+  language: 'Spaghetti Code',
+});
+
+
+// 
+//  THE GREAT SYNTAX BATTLE
+// 
+console.log('Recursion Man vs Prototypal Man');
+console.log('FIGHT!');
+console.log('-------------------------------------------------------------');
+supervillain.attack(superhero);
+console.log('-------------------------------------------------------------');
+superhero.attack(supervillain);
+console.log('-------------------------------------------------------------');
+superhero.attack(supervillain);
+console.log('-------------------------------------------------------------');
+supervillain.attack(superhero);
+console.log('-------------------------------------------------------------');
+superhero.attack(supervillain);
+console.log('-------------------------------------------------------------');
+superhero.attack(supervillain);
+console.log('-------------------------------------------------------------');
+supervillain.attack(superhero);
+console.log('-------------------------------------------------------------');
+superhero.attack(supervillain);

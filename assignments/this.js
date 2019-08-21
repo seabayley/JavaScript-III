@@ -17,14 +17,13 @@ console.log(this)
 // Principle 2
 
 // code example for Implicit Binding
-class Animal {
-    constructor(species) {
-        this.species = species;
-    }
 
-    report() {
-        console.log(this.species);
-    }
+function Animal(species) {
+    this.species = species;
+}
+
+Animal.prototype.report = function () {
+    console.log(this.species);
 }
 
 dog = new Animal('dog')
